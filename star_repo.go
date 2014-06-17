@@ -17,5 +17,4 @@ type StarRepo struct {
 func ReindexRepos(session *mgo.Session, batch int) *mgo.Iter {
   coll := session.DB(DBName).C(Collection)
   return coll.Find(bson.M{}).Batch(batch).Iter()
-
 }

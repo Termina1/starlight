@@ -1,8 +1,12 @@
 package main
 
-import "fmt"
 
 func main() {
-  ch := CreateSubscriptionMongo("localhost", 100)
-  fmt.Println(<-ch)
+  // worker := func(repo string) {
+  //   fmt.Println(repo)
+  // }
+  // beam := CreateStarBeam(worker, 10)
+  // beam.launch()
+  StarExtractor()()
+  select {}
 }
