@@ -9,6 +9,7 @@ func main() {
     config.GetString("mongoDb"),
     config.GetString("mongoCollection"),
     config.GetInt("mongoBatch"),
+    config.GetInt("mongoReindex"),
   }
   rconf := RedisConf{
     config.GetString("redisHost"),

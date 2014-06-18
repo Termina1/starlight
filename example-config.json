@@ -3,6 +3,7 @@
   "mongoDb": "db",
   "mongoCollection": "collection",
   "mongoBatch": 100,
+  "mongoReindex": 1440,
   "redisHost": "localhost",
   "redisPort": 6379,
   "redisQueue": "queue",

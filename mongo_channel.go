@@ -11,6 +11,7 @@ type MongoConf struct {
   Db string
   Collection string
   Batch int
+  Time int
 }
 
 func CreateMongoClient(conf MongoConf) *mgo.Collection {
@@ -30,15 +31,15 @@ func SubscribeMongo(iter *mgo.Iter) <-chan string {
   return tube
 }
 
-func LaunchSubscription(coll *mgo.Collection, batch int, out chan string) {
+func LaunchSubscription(coll *mgo.Collection, batch, reindexTime int, out chan string) {
   iter := ReindexRepos(coll, batch)
   source := SubscribeMongo(iter)
   go func() {
     for val := range source  {
       out <- val
     }
-    time.AfterFunc(time.Minute, func() {
-      LaunchSubscription(coll, batch, out)
+    time.AfterFunc(time.Minute * time.Duration(reindexTime), func() {
+      LaunchSubscription(coll, batch, reindexTime, out)
     })
   }()
 }
@@ -46,6 +47,6 @@ func LaunchSubscription(coll *mgo.Collection, batch int, out chan string) {
 func CreateSubscriptionMongo(conf MongoConf) <-chan string {
   coll := CreateMongoClient(conf)
   out := make(chan string)
-  LaunchSubscription(coll, conf.Batch, out)
+  LaunchSubscription(coll, conf.Batch, conf.Time, out)
   return out
 }
