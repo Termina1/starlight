@@ -1,0 +1,11 @@
+{
+  "mongoUrl": "localhost",
+  "mongoDb": "db",
+  "mongoCollection": "collection",
+  "mongoBatch": 100,
+  "redisHost": "localhost",
+  "redisPort": 6379,
+  "redisQueue": "queue",
+  "token": "github token",
+  "beamDensity": 10
+}

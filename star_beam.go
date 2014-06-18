@@ -8,9 +8,9 @@ type StarBeam struct {
 }
 
 
-func CreateStarBeam(worker func(string), density int) *StarBeam {
-  mongo := CreateSubscriptionMongo("localhost", 100)
-  redis := CreateSubscriptionRedis("localhost", 6379, "test")
+func CreateStarBeam(worker func(string), mconf MongoConf, rconf RedisConf, density int) *StarBeam {
+  mongo := CreateSubscriptionMongo(mconf)
+  redis := CreateSubscriptionRedis(rconf)
   return &StarBeam{mongo, redis, worker, density}
 }
 

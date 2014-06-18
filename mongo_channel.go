@@ -6,9 +6,16 @@ import (
 )
 var counting int = 0
 
-func CreateMongoClient(url string) *mgo.Session {
-  session, _ := mgo.Dial(url)
-  return session
+type MongoConf struct {
+  Url string
+  Db string
+  Collection string
+  Batch int
+}
+
+func CreateMongoClient(conf MongoConf) *mgo.Collection {
+  session, _ := mgo.Dial(conf.Url)
+  return session.DB(conf.Db).C(conf.Collection)
 }
 
 func SubscribeMongo(iter *mgo.Iter) <-chan string {
@@ -23,22 +30,22 @@ func SubscribeMongo(iter *mgo.Iter) <-chan string {
   return tube
 }
 
-func LaunchSubscription(sess *mgo.Session, batch int, out chan string) {
-  iter := ReindexRepos(sess, batch)
+func LaunchSubscription(coll *mgo.Collection, batch int, out chan string) {
+  iter := ReindexRepos(coll, batch)
   source := SubscribeMongo(iter)
   go func() {
     for val := range source  {
       out <- val
     }
     time.AfterFunc(time.Minute, func() {
-      LaunchSubscription(sess, batch, out)
+      LaunchSubscription(coll, batch, out)
     })
   }()
 }
 
-func CreateSubscriptionMongo(url string, batch int) <-chan string {
-  sess := CreateMongoClient(url)
+func CreateSubscriptionMongo(conf MongoConf) <-chan string {
+  coll := CreateMongoClient(conf)
   out := make(chan string)
-  LaunchSubscription(sess, batch, out)
+  LaunchSubscription(coll, conf.Batch, out)
   return out
 }

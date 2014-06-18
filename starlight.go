@@ -1,12 +1,23 @@
 package main
 
+import "github.com/stathat/jconfig"
 
 func main() {
-  // worker := func(repo string) {
-  //   fmt.Println(repo)
-  // }
-  // beam := CreateStarBeam(worker, 10)
-  // beam.launch()
-  StarExtractor()()
+  config := jconfig.LoadConfig("config.json")
+  mconf := MongoConf{
+    config.GetString("localhost"),
+    config.GetString("mongoDb"),
+    config.GetString("mongoCollection"),
+    config.GetInt("mongoBatch"),
+  }
+  rconf := RedisConf{
+    config.GetString("redisHost"),
+    uint(config.GetInt("redisPort")),
+    config.GetString("redisQueue"),
+  }
+  token := config.GetString("token")
+  density := config.GetInt("beamDensity")
+  beam := CreateStarBeam(StarExtractor(mconf, token), mconf, rconf, density)
+  beam.launch()
   select {}
 }

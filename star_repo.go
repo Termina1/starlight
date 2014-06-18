@@ -5,16 +5,19 @@ import(
   "labix.org/v2/mgo/bson"
 )
 
-const DBName = "starlight"
-
-const Collection = "repos"
-
 type StarRepo struct {
   Name string
   Indexed bool
+  StarGazers int
+  Forks int
+  Description string
+  SearchField string
 }
 
-func ReindexRepos(session *mgo.Session, batch int) *mgo.Iter {
-  coll := session.DB(DBName).C(Collection)
+func ReindexRepos(coll *mgo.Collection, batch int) *mgo.Iter {
   return coll.Find(bson.M{}).Batch(batch).Iter()
+}
+
+func StarRepoUpdate(coll *mgo.Collection, name string, repo *StarRepo) {
+  coll.Upsert(bson.M{"name": name}, repo)
 }

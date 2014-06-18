@@ -4,9 +4,15 @@ import (
   "menteslibres.net/gosexy/redis"
 )
 
-func CreateRedis(host string, port uint) *redis.Client {
+type RedisConf struct {
+  Host string
+  Port uint
+  Queue string
+}
+
+func CreateRedis(conf RedisConf) *redis.Client {
   r := redis.New()
-  r.ConnectNonBlock(host, port)
+  r.ConnectNonBlock(conf.Host, conf.Port)
   return r
 }
 
@@ -28,7 +34,7 @@ func createRedisFilter(source chan []string)  <-chan string{
   return out
 }
 
-func CreateSubscriptionRedis(host string, port uint, channel string) <-chan string {
-  r := CreateRedis(host, port)
-  return SubscribeRedis(r, channel)
+func CreateSubscriptionRedis(conf RedisConf) <-chan string {
+  r := CreateRedis(conf)
+  return SubscribeRedis(r, conf.Queue)
 }
