@@ -17,10 +17,12 @@ func ExtractPackageJson(client *github.Client, owner string, repo string, files 
   file := "package.json"
   if searchForFile(files, file) {
     var pack pjson
-    getJsonFileContents(client, file, owner, repo, &pack)
-    out <- pack.Name
-    out <- pack.Description
-    out <- strings.Join(pack.Keywords, " ")
+    error := getJsonFileContents(client, file, owner, repo, &pack)
+    if error == nil {
+      out <- pack.Name
+      out <- pack.Description
+      out <- strings.Join(pack.Keywords, " ")
+    }
   }
   close(out)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
   "menteslibres.net/gosexy/redis"
+  "github.com/golang/glog"
 )
 
 type RedisConf struct {
@@ -12,13 +13,21 @@ type RedisConf struct {
 
 func CreateRedis(conf RedisConf) *redis.Client {
   r := redis.New()
-  r.ConnectNonBlock(conf.Host, conf.Port)
+  error := r.ConnectNonBlock(conf.Host, conf.Port)
+  if error != nil {
+    glog.Fatalln("Couldn't connect to Redis: ", error)
+  }
   return r
 }
 
 func SubscribeRedis(client *redis.Client, queue string) <-chan string {
   tube := make(chan []string)
-  go client.Subscribe(tube, queue)
+  go func() {
+    error := client.Subscribe(tube, queue)
+    if error != nil {
+      glog.Errorln("Error while subscribing redis channel ", queue, ": ", error)
+    }
+  }()
   return createRedisFilter(tube)
 }
 

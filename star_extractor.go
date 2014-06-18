@@ -6,6 +6,7 @@ import (
   "sync"
   "github.com/Termina1/starlight/handlers"
   "code.google.com/p/goauth2/oauth"
+  "github.com/golang/glog"
 )
 
 type StarReaperWrap func(*github.Client, string, string, []string) <-chan string
@@ -25,17 +26,24 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
   transp := &oauth.Transport{
     Token: &oauth.Token{AccessToken: token},
   }
-  handlers := []StarReaperWrap{ExtractorWrapper(handlers.ExtractReadme), ExtractorWrapper(handlers.ExtractPackageJson)}
+  whandlers := []StarReaperWrap{ExtractorWrapper(handlers.ExtractReadme), ExtractorWrapper(handlers.ExtractPackageJson)}
   client := github.NewClient(transp.Client())
+  glog.Info("Acquired client with token")
   mongoSession := CreateMongoClient(mconf)
+  glog.Info("Create MongoDB connection for extractor")
 
   return func(repo string) {
     splitted := strings.Split(repo, "/")
     owner, repository := splitted[0], splitted[1]
-    fileNames := ExtractFileNames(client, owner, repository)
-    repositoryInfo := ExtractRepoInfo(client, owner, repository)
-    allChannels := make([]<-chan string, len(handlers))
-    for i, extractor := range handlers {
+    fileNames, error := handlers.ExtractFileNames(client, owner, repository)
+    info, error := handlers.ExtractRepoInfo(client, owner, repository)
+    if error != nil {
+      return
+    }
+    repositoryInfo := StarRepo{*info.FullName, true, *info.StargazersCount, *info.ForksCount, *info.Description, ""}
+
+    allChannels := make([]<-chan string, len(whandlers))
+    for i, extractor := range whandlers {
       allChannels[i] = extractor(client, owner, repository, fileNames)
     }
     out := StarExtractorCompose(allChannels)
@@ -45,7 +53,7 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
     }
 
     repositoryInfo.SearchField = searchField
-    StarRepoUpdate(mongoSession, repo, repositoryInfo)
+    StarRepoUpdate(mongoSession, repo, &repositoryInfo)
   }
 }
 
@@ -67,20 +75,4 @@ func StarExtractorCompose(chans []<-chan string) <-chan string {
     close(out)
   }()
   return out
-}
-
-
-func ExtractRepoInfo(client *github.Client, owner string, repo string) *StarRepo {
-  info, _, _ := client.Repositories.Get(owner, repo)
-  starRepo := StarRepo{*info.FullName, true, *info.StargazersCount, *info.ForksCount, *info.Description, ""}
-  return &starRepo
-}
-
-func ExtractFileNames(client *github.Client, owner string, repo string) []string {
-  _, dir, _, _ := client.Repositories.GetContents(owner, repo, "/", &github.RepositoryContentGetOptions{})
-  fileNames := make([]string, len(dir))
-  for i, file := range dir {
-    fileNames[i] = *file.Name
-  }
-  return fileNames
 }

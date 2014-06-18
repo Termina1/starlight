@@ -1,9 +1,20 @@
 package main
 
-import "github.com/stathat/jconfig"
+import(
+  "github.com/stathat/jconfig"
+  "github.com/golang/glog"
+  "flag"
+  "os"
+  "os/signal"
+  "syscall"
+)
 
 func main() {
+  flag.Parse()
   config := jconfig.LoadConfig("config.json")
+  flag.Set("log_dir", config.GetString("logDir"))
+  flag.Set("stderrthreshold", "ERROR")
+  glog.Infoln("Config loaded successgully")
   mconf := MongoConf{
     config.GetString("localhost"),
     config.GetString("mongoDb"),
@@ -20,5 +31,10 @@ func main() {
   density := config.GetInt("beamDensity")
   beam := CreateStarBeam(StarExtractor(mconf, token), mconf, rconf, density)
   beam.launch()
-  select {}
+  glog.Infoln("Starlight initialized")
+  termination := make(chan os.Signal, 1)
+  signal.Notify(termination, os.Interrupt)
+  signal.Notify(termination, syscall.SIGTERM)
+  <-termination
+  glog.Flush()
 }
