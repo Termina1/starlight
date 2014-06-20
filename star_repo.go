@@ -6,12 +6,12 @@ import(
 )
 
 type StarRepo struct {
-  Name string
+  Name *string
   Indexed bool
-  StarGazers int
-  Forks int
-  Description string
-  SearchField string
+  StarGazers *int
+  Forks *int
+  Description *string
+  SearchField *string
 }
 
 func ReindexRepos(coll *mgo.Collection, batch int) *mgo.Iter {

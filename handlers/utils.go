@@ -5,6 +5,7 @@ import(
   "encoding/base64"
   "encoding/json"
   "github.com/golang/glog"
+  "errors"
 )
 
 func searchForFile(files []string, file string) bool {
@@ -19,6 +20,9 @@ func searchForFile(files []string, file string) bool {
 func getFileContents(client *github.Client, file, owner, repo string) ([]byte, error) {
   content, _, response, error := client.Repositories.GetContents(owner, repo, file, &github.RepositoryContentGetOptions{})
   checkResponse(response)
+  if content.Content == nil {
+    error = errors.New("Readme content is nil")
+  }
   if error == nil {
     result, error := base64.StdEncoding.DecodeString(*content.Content)
     if error == nil {

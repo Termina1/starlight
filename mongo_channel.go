@@ -30,7 +30,7 @@ func SubscribeMongo(iter *mgo.Iter) <-chan string {
   go func() {
     glog.Info("Start iterating over existing repos")
     for iter.Next(&repo) == true {
-      tube <- repo.Name
+      tube <- *repo.Name
     }
     close(tube)
     glog.Info("Iterated over all repos, closing channel")

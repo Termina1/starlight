@@ -40,7 +40,7 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
     if error != nil {
       return
     }
-    repositoryInfo := StarRepo{*info.FullName, true, *info.StargazersCount, *info.ForksCount, *info.Description, ""}
+    repositoryInfo := StarRepo{info.FullName, true, info.StargazersCount, info.ForksCount, info.Description, nil}
 
     allChannels := make([]<-chan string, len(whandlers))
     for i, extractor := range whandlers {
@@ -52,7 +52,7 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
       searchField += " " + value
     }
 
-    repositoryInfo.SearchField = searchField
+    repositoryInfo.SearchField = &searchField
     StarRepoUpdate(mongoSession, repo, &repositoryInfo)
   }
 }
