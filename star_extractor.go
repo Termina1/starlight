@@ -52,6 +52,10 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
       searchField += " " + value
     }
 
+    if info.Description != nil {
+      searchField += " " + *info.Description
+    }
+
     repositoryInfo.SearchField = &searchField
     StarRepoUpdate(mongoSession, repo, &repositoryInfo)
   }

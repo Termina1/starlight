@@ -15,16 +15,16 @@ func ExtractReadme(client *github.Client, owner string, repo string, files []str
     return
   }
   var result []byte
-  if readme.Content != nil {
-    result, error = base64.StdEncoding.DecodeString(*readme.Content)
+  if readme.Content == nil {
+    glog.Errorln("Content of readme is nil ", owner, "/", repo)
     close(out)
     return
   }
+  result, error = base64.StdEncoding.DecodeString(*readme.Content)
   if error != nil {
     glog.Errorln("Couldn't decode base64 sequence of readme for ", owner, "/", repo, ": ", error)
-    close(out)
-    return
+  } else {
+    out <- string(result)
   }
-  out <- string(result)
   close(out)
 }
