@@ -35,6 +35,7 @@ func createRedisFilter(source chan []string)  <-chan string{
   out := make(chan string)
   go func() {
     for msg := range source {
+      glog.Infoln("received message ", msg)
       if (msg[0] == "message") {
         out <- msg[2]
       }
