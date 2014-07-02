@@ -22,19 +22,29 @@ func ExtractorWrapper(ex StarReaper) StarReaperWrap {
   }
 }
 
-func StarExtractor(mconf MongoConf, token string) func(string) {
+func CreateGithubClient(token string) *github.Client {
   transp := &oauth.Transport{
     Token: &oauth.Token{AccessToken: token},
   }
+  return github.NewClient(transp.Client())
+}
+
+func StarExtractor(mconf MongoConf, token string) func(string) {
   whandlers := []StarReaperWrap{ExtractorWrapper(handlers.ExtractReadme), ExtractorWrapper(handlers.ExtractPackageJson)}
-  client := github.NewClient(transp.Client())
+  defaultClient := CreateGithubClient(token)
   glog.Info("Acquired client with token")
   mongoSession := CreateMongoClient(mconf)
   glog.Info("Create MongoDB connection for extractor")
 
   return func(repo string) {
+    var client *github.Client;
     splitted := strings.Split(repo, "/")
     owner, repository := splitted[0], splitted[1]
+    if len(splitted) > 2 {
+      client = CreateGithubClient(splitted[2])
+    } else {
+      client = defaultClient
+    }
     fileNames, error := handlers.ExtractFileNames(client, owner, repository)
     info, error := handlers.ExtractRepoInfo(client, owner, repository)
     if error != nil {
