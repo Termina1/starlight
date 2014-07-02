@@ -1,5 +1,6 @@
 Starlight
 =========
+[![Build Status](https://drone.io/github.com/Termina1/starlight/status.png)](https://drone.io/github.com/Termina1/starlight/latest)
 
 Simple github repo indexer written in Go.
 
