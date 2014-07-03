@@ -6,7 +6,7 @@ Simple github repo indexer written in Go.
 
 Built on top of [http://www.mongodb.org/](MongoDB) for persistence and [http://redis.io/](Redis) for Pub/Sub.
 
-All this project was built as my first experiment with Go.
+This whole project was built as my first experiment with Go.
 
 ## Build
 
