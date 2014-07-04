@@ -13,9 +13,9 @@ func ExtractGemspec(client *github.Client, owner string, repo string, files []st
 
     if error == nil {
       patterns := []*regexp.Regexp{
-        regexp.MustCompile(`\.description\s*=\s*("|'|%q\{)(.*?)("|'|\})`),
+        regexp.MustCompile(`\.description\s*=\s*("|'|%q\{|%Q\{)(.*?)("|'|\})`),
         regexp.MustCompile(`\.name\s*=\s*"(|')(.*?)("|')`),
-        regexp.MustCompile(`\.summary\s*=\s*("|'|%q\{)(.*?)("|'|\})`),
+        regexp.MustCompile(`\.summary\s*=\s*("|'|%q\{|%Q\{)(.*?)("|'|\})`),
       }
 
       var result []string
