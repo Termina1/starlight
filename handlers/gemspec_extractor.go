@@ -3,7 +3,6 @@ package handlers
 import(
   "github.com/google/go-github/github"
   "regexp"
-  "fmt"
 )
 
 func ExtractGemspec(client *github.Client, owner string, repo string, files []string, out chan string) {
