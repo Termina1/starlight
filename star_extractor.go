@@ -30,7 +30,7 @@ func CreateGithubClient(token string) *github.Client {
 }
 
 func StarExtractor(mconf MongoConf, token string) func(string) {
-  whandlers := []StarReaperWrap{ExtractorWrapper(handlers.ExtractReadme), ExtractorWrapper(handlers.ExtractPackageJson)}
+  whandlers := []StarReaperWrap{ExtractorWrapper(handlers.ExtractReadme), ExtractorWrapper(handlers.ExtractPackageJson), ExtractorWrapper(handlers.ExtractGemspec)}
   defaultClient := CreateGithubClient(token)
   glog.Info("Acquired client with token")
   mongoSession := CreateMongoClient(mconf)
