@@ -1,6 +1,7 @@
 Starlight
 =========
 [![Build Status](https://drone.io/github.com/Termina1/starlight/status.png)](https://drone.io/github.com/Termina1/starlight/latest)
+[ ![Codeship Status for Termina1/starlight](https://codeship.com/projects/6b4efa10-5187-0132-d013-6a4a03e15b82/status)](https://codeship.com/projects/48374)
 
 Simple github repo indexer written in Go.
 
