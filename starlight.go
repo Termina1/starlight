@@ -1,7 +1,7 @@
 package main
 
 import(
-  "github.com/stathat/jconfig"
+  "stathat.com/c/jconfig"
   "github.com/golang/glog"
   "flag"
   "os"

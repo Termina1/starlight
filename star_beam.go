@@ -35,7 +35,7 @@ func (beam *StarBeam) spawn(fan <-chan string, number int) {
   }
 }
 
-func (beam *StarBeam) compose() <- chan string {
+func (beam *StarBeam) compose() <-chan string {
   fanOut := make(chan string)
   go beam.prioritise(fanOut)
   return fanOut

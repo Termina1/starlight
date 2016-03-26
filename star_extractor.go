@@ -5,7 +5,7 @@ import (
   "strings"
   "sync"
   "github.com/Termina1/starlight/handlers"
-  "code.google.com/p/goauth2/oauth"
+  "golang.org/x/oauth2"
   "github.com/golang/glog"
 )
 
@@ -23,10 +23,12 @@ func ExtractorWrapper(ex StarReaper) StarReaperWrap {
 }
 
 func CreateGithubClient(token string) *github.Client {
-  transp := &oauth.Transport{
-    Token: &oauth.Token{AccessToken: token},
-  }
-  return github.NewClient(transp.Client())
+  ts := oauth2.StaticTokenSource(
+    &oauth2.Token{AccessToken: token},
+  )
+  tc := oauth2.NewClient(oauth2.NoContext, ts)
+
+  return github.NewClient(tc)
 }
 
 func StarExtractor(mconf MongoConf, token string) func(string) {
@@ -46,6 +48,10 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
       client = defaultClient
     }
     fileNames, error := handlers.ExtractFileNames(client, owner, repository)
+    if error != nil {
+      return
+    }
+
     info, error := handlers.ExtractRepoInfo(client, owner, repository)
     if error != nil {
       return
@@ -65,7 +71,6 @@ func StarExtractor(mconf MongoConf, token string) func(string) {
     if info.Description != nil {
       searchField += " " + *info.Description
     }
-
     repositoryInfo.SearchField = &searchField
     StarRepoUpdate(mongoSession, repo, &repositoryInfo)
   }
